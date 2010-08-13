@@ -73,8 +73,13 @@ class Doctrine_Relation_ForeignKey extends Doctrine_Relation
                 
                 $related = Doctrine_Collection::create($this->getTable());
             } else {
+              if (count($id) == 1) {
+                $finder = 'findBy' . Doctrine_Inflector::tableize($this->definition['foreign']);
+                $related = $this->getTable()->$finder($id[0]);
+              } else {
                 $query      = $this->getRelationDql(1);
                 $related    = $this->getTable()->getConnection()->query($query, $id);
+              }
             }
             $related->setReference($record, $this);
         }

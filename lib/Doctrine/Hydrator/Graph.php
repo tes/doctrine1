@@ -185,12 +185,6 @@ abstract class Doctrine_Hydrator_Graph extends Doctrine_Hydrator_Abstract
             foreach ($rowData as $dqlAlias => $data) {
                 $index = false;
                 $map = $this->_queryComponents[$dqlAlias];
-                $table = $map['table'];
-                $componentName = $table->getComponentName();
-                $event->set('data', $data);
-                $event->setInvoker($table);
-                $listeners[$componentName]->preHydrate($event);
-                $instances[$componentName]->preHydrate($event);
 
                 // It would be nice if this could be moved to the query parser but I could not find a good place to implement it
                 if ( ! isset($map['parent'])) {
@@ -200,9 +194,30 @@ abstract class Doctrine_Hydrator_Graph extends Doctrine_Hydrator_Abstract
                     );
                 }
 
+                $table = $map['table'];
+                $componentName = $table->getComponentName();
                 $parent = $map['parent'];
                 $relation = $map['relation'];
                 $relationAlias = $map['relation']->getAlias();
+
+                // If we can narrow down the class based on the parent
+                // relation, do so.
+                if ($hydrationMode == Doctrine::HYDRATE_RECORD && $prev[$parent]) {
+                  $newComponentName = $prev[$parent]->getTable()->getRelation($relationAlias)->getClass();
+                  if ($newComponentName != $componentName) {
+                    $componentName = $newComponentName;
+                    $table = Doctrine::getTable($componentName);
+                    if (!array_key_exists($componentName, $instances)) {
+                      $instances[$componentName] = $table->getRecordInstance();
+                      $listeners[$componentName] = $table->getRecordListener();
+                    }
+                  }
+                }
+
+                $event->set('data', $data);
+                $event->setInvoker($table);
+                $listeners[$componentName]->preHydrate($event);
+                $instances[$componentName]->preHydrate($event);
 
                 $path = $parent . '.' . $dqlAlias;
 

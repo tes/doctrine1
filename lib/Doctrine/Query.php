@@ -278,7 +278,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      */
     public function fetchOne($params = array(), $hydrationMode = null)
     {
-        $collection = $this->execute($params, $hydrationMode);
+      $collection = $this->limit(1)->execute($params, $hydrationMode);
 
         if (is_scalar($collection)) {
             return $collection;
@@ -692,7 +692,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
            return $clause;
         }
 
-        $terms = $this->_tokenizer->clauseExplode($clause, array(' ', '+', '-', '*', '/', '<', '>', '=', '>=', '<=', '&', '|'));
+        $terms = $this->_tokenizer->clauseExplode($clause, array(' ', '+', '-', '*', '/', '<', '>', '=', '>=', '<=', '!=', '&', '|'));
         $str = '';
 
         foreach ($terms as $term) {
@@ -2226,5 +2226,9 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
         $this->reset();
         $this->_parsers = array();
         $this->_dqlParts = array();
+    }
+
+    public function getAggregateAliasMap() {
+      return $this->_aggregateAliasMap;
     }
 }

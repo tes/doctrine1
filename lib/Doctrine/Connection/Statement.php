@@ -71,6 +71,10 @@ class Doctrine_Connection_Statement implements Doctrine_Adapter_Statement_Interf
         return $this->_conn;
     }
 
+    public function setConnection($conn) {
+      $this->_conn = $conn;
+    }
+
     public function getStatement()
     {
         return $this->_stmt;

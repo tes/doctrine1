@@ -224,13 +224,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      */
     public function addRecordListener($listener, $name = null)
     {
-        if ( ! isset($this->attributes[Doctrine_Core::ATTR_RECORD_LISTENER]) ||
-             ! ($this->attributes[Doctrine_Core::ATTR_RECORD_LISTENER] instanceof Doctrine_Record_Listener_Chain)) {
-
-            $this->attributes[Doctrine_Core::ATTR_RECORD_LISTENER] = new Doctrine_Record_Listener_Chain();
-        }
-        $this->attributes[Doctrine_Core::ATTR_RECORD_LISTENER]->add($listener, $name);
-
+      $this->getRecordListener()->add($listener, $name);
         return $this;
     }
 
@@ -242,10 +236,11 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
     public function getRecordListener()
     {
         if ( ! isset($this->attributes[Doctrine_Core::ATTR_RECORD_LISTENER])) {
+          $chain = new Doctrine_Record_Listener_Chain();
             if (isset($this->parent)) {
-                return $this->parent->getRecordListener();
+              $chain->add($this->parent->getRecordListener());
             }
-            return null;
+            $this->attributes[Doctrine::ATTR_RECORD_LISTENER] = $chain;
         }
         return $this->attributes[Doctrine_Core::ATTR_RECORD_LISTENER];
     }
@@ -258,6 +253,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      */
     public function setRecordListener($listener)
     {
+      throw new Exception('Never call this, use addRecordListener');
         if ( ! ($listener instanceof Doctrine_Record_Listener_Interface)
             && ! ($listener instanceof Doctrine_Overloadable)
         ) {

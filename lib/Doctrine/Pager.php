@@ -465,7 +465,7 @@ class Doctrine_Pager
      */
     public function getCountQuery()
     {
-        return ($this->_countQuery !== null) ? $this->_countQuery : $this->_query;
+        return ($this->_countQuery !== null) ? $this->_countQuery : clone $this->_query;
     }
 
     /**

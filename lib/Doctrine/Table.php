@@ -1757,6 +1757,16 @@ class Doctrine_Table extends Doctrine_Configurable implements Countable
     }
 
     /**
+     * getIdentityMap
+     * returns the table's identity map (first level canonicalization cache).
+     *
+     * @return array         the id => record mapping
+     */
+    public function getIdentityMap() {
+      return $this->_identityMap;
+    }
+
+    /**
      * Adds a record to the first level cache (identity map).
      *
      * This method is used internally to cache records, ensuring that only one 

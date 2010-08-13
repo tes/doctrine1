@@ -55,14 +55,8 @@ class Doctrine_Relation_LocalKey extends Doctrine_Relation
                 $related->state(Doctrine_Record::STATE_PROXY);
             }
         } else {
-            $dql  = 'FROM ' . $this->getTable()->getComponentName()
-                 . ' WHERE ' . $this->getCondition() . $this->getOrderBy(null, false);
-
-            $related = $this->getTable()
-                            ->getConnection()
-                            ->query($dql, array($id))
-                            ->getFirst();
-            
+          $finder = 'findOneBy' . Doctrine_Inflector::tableize($this->definition['foreign']);
+          $related = $this->getTable()->$finder($id);
             if ( ! $related || empty($related)) {
                 $related = $this->getTable()->create();
             }

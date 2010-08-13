@@ -60,6 +60,9 @@ class Doctrine_Lib
             case Doctrine_Record::STATE_TCLEAN:
                 return "transient clean";
                 break;
+        case Doctrine_Record::STATE_LOCKED:
+          return "locked";
+          break;
         }
     }
 
@@ -76,7 +79,7 @@ class Doctrine_Lib
     {
         $r[] = '<pre>';
         $r[] = 'Component  : ' . $record->getTable()->getComponentName();
-        $r[] = 'ID         : ' . Doctrine_Core::dump($record->identifier());
+        $r[] = 'ID         : ' . Doctrine_Core::dump($record->identifier(), false);
         $r[] = 'References : ' . count($record->getReferences());
         $r[] = 'State      : ' . Doctrine_Lib::getRecordStateAsString($record->state());
         $r[] = 'OID        : ' . $record->getOID();
