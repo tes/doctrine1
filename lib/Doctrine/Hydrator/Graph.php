@@ -202,7 +202,7 @@ abstract class Doctrine_Hydrator_Graph extends Doctrine_Hydrator_Abstract
 
                 // If we can narrow down the class based on the parent
                 // relation, do so.
-                if ($hydrationMode == Doctrine::HYDRATE_RECORD && $prev[$parent]) {
+                if ($this instanceof Doctrine_Hydrator_RecordDriver && $prev[$parent]) {
                   $newComponentName = $prev[$parent]->getTable()->getRelation($relationAlias)->getClass();
                   if ($newComponentName != $componentName) {
                     $componentName = $newComponentName;
