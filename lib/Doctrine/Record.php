@@ -686,11 +686,11 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
             return false;
         }
         foreach ($this->_data as $column => $value) {
-            $default = $this->_table->getDefaultValueOf($column);
-
-            if ($default === null) {
-                continue;
+            if (!$this->_table->hasDefaultValue($column)) {
+              continue;
             }
+
+            $default = $this->_table->getDefaultValueOf($column);
 
             if ($value === self::$_null || $overwrite) {
                 $this->_data[$column] = $default;

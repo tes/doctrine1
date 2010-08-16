@@ -1429,6 +1429,15 @@ class Doctrine_Table extends Doctrine_Configurable implements Countable
         }
     }
 
+    public function hasDefaultValue($fieldName) {
+        $columnName = $this->getColumnName($fieldName);
+        if ( ! isset($this->_columns[$columnName])) {
+            throw new Doctrine_Table_Exception("Couldn't get default value. Column ".$columnName." doesn't exist.");
+        }
+
+        return array_key_exists('default', $this->_columns[$columnName]);
+    }
+
     /**
      * Returns the definition of the identifier key.
      * @return string    can be array if a multi-column primary key is used.
