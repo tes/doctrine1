@@ -739,18 +739,31 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
     public function hydrate(array $data, $overwriteLocalChanges = true)
     {
         if ($overwriteLocalChanges) {
-            $this->_values = array_merge($this->_values, $this->cleanData($data));
-            $this->_data = array_merge($this->_data, $data);
+            $this->_values = $this->mergeNoNull($this->_values, $this->cleanData($data));
+            $this->_data = $this->mergeNoNull($this->_data, $data);
             $this->_modified = array();
             $this->_oldValues = array();
         } else {
-            $this->_values = array_merge($this->cleanData($data), $this->_values);
-            $this->_data = array_merge($data, $this->_data);
+            $this->_values = $this->mergeNoNull($this->cleanData($data), $this->_values);
+            $this->_data = $this->mergeNoNull($data, $this->_data);
         }
 
         if (!$this->isModified() && $this->isInProxyState()) {
             $this->_state = self::STATE_PROXY;
         }
+    }
+
+    public function mergeNoNull($array1, $array2) {
+      $return = array();
+      foreach($array1 as $key => $value) {
+        if (array_key_exists($key, $array2) && $array2[$key] != self::$_null) {
+          $return[$key] = $array2[$key];
+        } else {
+          $return[$key] = $value;
+        }
+        unset($array2[$key]);
+      }
+      return array_merge($return, $array2);
     }
 
     /**
