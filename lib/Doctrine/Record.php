@@ -756,7 +756,7 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
     public function mergeNoNull($array1, $array2) {
       $return = array();
       foreach($array1 as $key => $value) {
-        if (array_key_exists($key, $array2) && $array2[$key] != self::$_null) {
+        if (array_key_exists($key, $array2) && $array2[$key] !== self::$_null) {
           $return[$key] = $array2[$key];
         } else {
           $return[$key] = $value;
