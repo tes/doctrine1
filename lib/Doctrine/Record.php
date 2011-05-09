@@ -803,6 +803,14 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
         }
     }
 
+    public function varsNotToSerialize() {
+        $vars = array('_table', '_errorStack', '_filter', '_node');
+        if ( ! $this->serializeReferences()) {
+            $vars[] = '_references';
+        }
+        return $vars;
+    }
+
     /**
      * serialize
      * this method is automatically called when an instance of Doctrine_Record is serialized
@@ -818,13 +826,9 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
 
         $vars = get_object_vars($this);
 
-        if ( ! $this->serializeReferences()) {
-            unset($vars['_references']);
+        foreach ($this->varsNotToSerialize() as $varName) {
+            unset($vars[$varName]);
         }
-        unset($vars['_table']);
-        unset($vars['_errorStack']);
-        unset($vars['_filter']);
-        unset($vars['_node']);
 
         $data = $this->_data;
         if ($this->exists()) {
