@@ -804,7 +804,9 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
     }
 
     public function varsNotToSerialize() {
-        $vars = array('_table', '_errorStack', '_filter', '_node');
+        $vars = array('_table', '_errorStack', '_filter', '_node',
+          '_lastModified', '_modified', '_oldValues', '_pendingDeletes',
+          '_pendingUnlinks');
         if ( ! $this->serializeReferences()) {
             $vars[] = '_references';
         }
