@@ -2046,7 +2046,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
         $having = ( ! empty($having)) ? ' HAVING ' . implode(' AND ', $having) : '';
 
         // Building the from clause and finishing query
-        if (count($this->_queryComponents) == 1 && empty($having)) {
+        if (!$this->_needsSubquery && empty($having)) {
             $q .= $from . $where . $groupby . $having;
         } else {
             // Subselect fields will contain only the pk of root entity
