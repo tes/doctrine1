@@ -122,25 +122,27 @@ class Doctrine_Connection_UnitOfWork extends Doctrine_Connection_Module
 
                 $record->state($record->exists() ? Doctrine_Record::STATE_LOCKED : Doctrine_Record::STATE_TLOCKED);
 
-                if ($isValid) {
-                    $saveLater = $this->saveRelatedForeignKeys($record);
-                    foreach ($saveLater as $fk) {
-                        $alias = $fk->getAlias();
+                //NOTE(geophree): comment this out because we don't want to
+                //chain saves.  If you want something saved, call ->save() on it.
+                //if ($isValid) {
+                //    $saveLater = $this->saveRelatedForeignKeys($record);
+                //    foreach ($saveLater as $fk) {
+                //        $alias = $fk->getAlias();
 
-                        if ($record->hasReference($alias)) {
-                            $obj = $record->$alias;
+                //        if ($record->hasReference($alias)) {
+                //            $obj = $record->$alias;
 
-                            // check that the related object is not an instance of Doctrine_Null
-                            if ($obj && ! ($obj instanceof Doctrine_Null)) {
-                                $processDiff = !in_array($alias, $aliasesUnlinkInDb);
-                                $obj->save($conn, $processDiff);
-                            }
-                        }
-                    }
+                //            // check that the related object is not an instance of Doctrine_Null
+                //            if ($obj && ! ($obj instanceof Doctrine_Null)) {
+                //                $processDiff = !in_array($alias, $aliasesUnlinkInDb);
+                //                $obj->save($conn, $processDiff);
+                //            }
+                //        }
+                //    }
 
-                    // save the MANY-TO-MANY associations
-                    $this->saveAssociations($record);
-                }
+                //    // save the MANY-TO-MANY associations
+                //    $this->saveAssociations($record);
+                //}
             }
 
             $record->state($state);
