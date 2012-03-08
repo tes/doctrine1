@@ -209,6 +209,8 @@ class Doctrine_Connection_UnitOfWork extends Doctrine_Connection_Module
         // order deletes
         $executionOrder = $this->buildFlushTree($classNames);
 
+        $deleteEvents = array();
+
         // execute
         try {
             $this->conn->beginInternalTransaction();
@@ -222,8 +224,9 @@ class Doctrine_Connection_UnitOfWork extends Doctrine_Connection_Module
                 $deletedRecords = array();
                 foreach ($deletions as $oid => $record) {
                     if ($record->getTable()->getComponentName() == $className) {
-                        $veto = $this->_preDelete($record);
-                        if ( ! $veto) {
+                        $event = $this->_preDelete($record);
+                        $deleteEvents[$record->getOid()] = $event;
+                        if ( ! $event->skipOperation) {
                             $identifierMaps[] = $record->identifier();
                             $deletedRecords[] = $record;
                             unset($deletions[$oid]);
@@ -265,13 +268,15 @@ class Doctrine_Connection_UnitOfWork extends Doctrine_Connection_Module
                     //--
                     $record->state(Doctrine_Record::STATE_TCLEAN);
                     $record->getTable()->removeRecord($record);
-                    $this->_postDelete($record);
+                    $event = $deleteEvents[$record->getOid()];
+                    $this->_postDelete($record, $event);
                 }
             }
 
             // trigger postDelete for records skipped during the deletion (veto!)
             foreach ($deletions as $skippedRecord) {
-                $this->_postDelete($skippedRecord);
+                $event = $deleteEvents[$skippedRecord->getOid()];
+                $this->_postDelete($skippedRecord, $event);
             }
 
             $this->conn->commit();
@@ -471,7 +476,7 @@ class Doctrine_Connection_UnitOfWork extends Doctrine_Connection_Module
     /**
      * Invokes preDelete event listeners.
      *
-     * @return boolean  Whether a listener has used it's veto (don't delete!).
+     * @return Doctrine_Event  The delete event.
      */
     private function _preDelete(Doctrine_Record $record)
     {
@@ -479,15 +484,14 @@ class Doctrine_Connection_UnitOfWork extends Doctrine_Connection_Module
         $record->preDelete($event);
         $record->getTable()->getRecordListener()->preDelete($event);
 
-        return $event->skipOperation;
+        return $event;
     }
 
     /**
      * Invokes postDelete event listeners.
      */
-    private function _postDelete(Doctrine_Record $record)
+    private function _postDelete(Doctrine_Record $record, Doctrine_Event $event)
     {
-        $event = new Doctrine_Event($record, Doctrine_Event::RECORD_DELETE);
         $record->postDelete($event);
         $record->getTable()->getRecordListener()->postDelete($event);
     }
